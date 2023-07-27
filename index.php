@@ -85,28 +85,6 @@ $bg_image_info = getimagesize($bg_image_filename);
 $bg_image_width = $bg_image_info[0];
 $bg_image_height = $bg_image_info[1];
 
-// read questions from txt file
-$questions_filename = 'questions.txt';
-$questions = array();
-$handle = fopen($questions_filename, "r");
-while (($line = fgets($handle)) !== false) {
-  // Skip empty lines
-  if (trim($line) === '') {
-    continue;
-  }
-
-  //parse json from each line
-  $line = json_decode($line, true);
-  if ($line === null) {
-    echo 'Error parsing JSON: ' . json_last_error_msg() . PHP_EOL;
-    continue;
-  }
-
-  // Append parsed JSON to data array
-  $questions[] = $line;
-}
-fclose($handle);
-
 require_once('header.php');
 
 echo '<div id="controls_container">
