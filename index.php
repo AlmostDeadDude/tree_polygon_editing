@@ -1,4 +1,12 @@
 <?php
+//session to check whether the qualification page was opened
+session_start();
+
+if (!isset($_SESSION['qualification'])) {
+  //if not, redirect to the qualification page
+  header("Location: about.php?firstTime=true");
+  exit();
+}
 
 //get the microworkers usual staff
 $Campaign_id = $_GET["campaign"];
