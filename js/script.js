@@ -32,6 +32,7 @@ if (page === "index.php" || page === "" || page === 'qualification.php') {
             //each task has a submit button with class nextBtn
             let nextBtn = task.querySelector(".nextBtn");
             nextBtn.disabled = true;
+            //
 
             //when the user clicks the button, the next task is shown
             nextBtn.addEventListener("click", () => {

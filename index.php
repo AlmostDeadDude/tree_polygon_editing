@@ -173,7 +173,7 @@ foreach ($data as $index => $json_obj) {
           ctx_[' . $index . '].closePath();
           ';
   echo '</script>';
-  echo '<button class="nextBtn">Next</button>
+  echo '<button class="nextBtn"><span>Next</span><small>' . ($index + 1) . '/' . count($data) . '</small></button>
   </div>
   </div>';
 }
