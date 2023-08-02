@@ -16,13 +16,13 @@ echo '
     <br>
     <img src="pics/examples/move.gif" alt="move" width=720>
     </li>
-    <li><strong>Delete Points:</strong> Select the point you want to delete and press the delete button on your keyboard. The polygon will adjust automatically.
-    <br>
-    <img src="pics/examples/delete.gif" alt="delete" width=720>
-    </li>
     <li><strong>Insert Points:</strong> To insert a new point between two existing points, click on the line connecting those points. A new point will be created at that location, and the polygon will adjust automatically.
     <br>
     <img src="pics/examples/add.gif" alt="insert" width=720>
+    </li>
+    <li><strong>Delete Points:</strong> Select the point you want to delete and press the delete button on your keyboard. The polygon will adjust automatically.
+    <br>
+    <img src="pics/examples/delete.gif" alt="delete" width=720>
     </li>
   </ul>
 
@@ -33,7 +33,7 @@ if ($firstTime == 'true') {
   echo '<button class="toTaskBtn" onclick="startTask()">Start task</button>';
   echo '<script>
     function startTask() {
-        window.location.href = "index.php?campaign=' . $Campaign_id . '&worker=' . $Worker_id . '&rand_key=' . $Rand_key . '";
+      window.location.href = "qualification.php?campaign=' . $Campaign_id . '&worker=' . $Worker_id . '&rand_key=' . $Rand_key . '";
     }
     </script>';
 }

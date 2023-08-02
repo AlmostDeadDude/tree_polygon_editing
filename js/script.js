@@ -6,7 +6,7 @@ let page = window.location.pathname.split("/").pop();;
 document.getElementById("year").innerHTML = new Date().getFullYear();
 
 //specific for index.php and results.php
-if (page === "index.php" || page === "") {
+if (page === "index.php" || page === "" || page === 'qualification.php') {
     // variables and dom elements
     const values = {};
     const confirmBtn = document.getElementById("confirmBtn");
@@ -22,75 +22,337 @@ if (page === "index.php" || page === "") {
         controls.classList.toggle("hidden");
     });
 
-    //make tasks interactive
-    let tasks = document.querySelectorAll(".task-wrapper");
-    tasks.forEach(task => {
-        //prepare the output object
-        values[task.id] = {};
-        //each task has a submit button with class nextBtn
-        let nextBtn = task.querySelector(".nextBtn");
-        nextBtn.disabled = true;
+    //specific for index.php and results.php
+    if (page === "index.php" || page === "") {
+        //make tasks interactive
+        let tasks = document.querySelectorAll(".task-wrapper");
+        tasks.forEach(task => {
+            //prepare the output object
+            values[task.id] = {};
+            //each task has a submit button with class nextBtn
+            let nextBtn = task.querySelector(".nextBtn");
+            nextBtn.disabled = true;
 
-        //when the user clicks the button, the next task is shown
-        nextBtn.addEventListener("click", () => {
-            //save the results from the current task
-            values[task.id] = polygonPoints;
+            //when the user clicks the button, the next task is shown
+            nextBtn.addEventListener("click", () => {
+                //save the results from the current task
+                values[task.id] = polygonPoints;
+                console.log(values);
 
-            //hide the current task
-            task.classList.add("hidden");
-            //show the next task if there is one
-            if (task.nextElementSibling && task.nextElementSibling.classList.contains("task-wrapper")) {
-                task.nextElementSibling.classList.remove("hidden");
-                //scroll to the next task
-                task.nextElementSibling.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start",
-                    inline: "nearest",
+                //hide the current task
+                task.classList.add("hidden");
+                //show the next task if there is one
+                if (task.nextElementSibling && task.nextElementSibling.classList.contains("task-wrapper")) {
+                    task.nextElementSibling.classList.remove("hidden");
+                    //scroll to the next task
+                    task.nextElementSibling.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                        inline: "nearest",
+                    });
+
+                    let currentTask = task.nextElementSibling.querySelector("canvas").id.slice(-1);
+                    polygonPoints = polygonPoints_[currentTask];
+                    canvas = canvas_[currentTask];
+                    ctx = ctx_[currentTask];
+                    selectedPointIndex = selectedPointIndex_[currentTask];
+                    pointRadius = pointRadius_[currentTask];
+                    interactiveCanvas(canvas);
+                    drawPolygon();
+                } else {
+                    //show confirm button
+                    confirmBtn.classList.remove("hidden");
+                }
+            });
+        });
+
+        //when confirmed the values are sent to the server = saveResults.php
+        //if it returns the success message, the user is redirected to the results page = results.php
+        if (confirmBtn) {
+            confirmBtn.addEventListener("click", async () => {
+                //first collect the date from all the inputs and store it in the values object
+                console.log(values);
+                tasks.forEach(task => {
+                    console.log(task);
                 });
+                //send data as json 
+                let data = JSON.stringify({
+                    userInfo: userInfo,
+                    dataInfo: dataInfo,
+                    values: values,
+                });
+                let response = await fetch("saveResults.php", {
+                    method: "POST",
+                    body: data,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+                let result = await response.text();
+                console.log(result);
+                if (result == "success") {
+                    window.location.href = "results.php?vcode=" + userInfo.vcode;
+                }
+            });
+        }
+    } else { //qualification.php
+        //adjust the header text
+        document.querySelector("header span").innerText = "Qualification Task";
+        //GROUND TRUTH to campare against
+        const groundTruth = [{
+            "x": 420.00390625,
+            "y": 509.4453125
+        }, {
+            "x": 421.00390625,
+            "y": 491.4453125
+        }, {
+            "x": 442.00390625,
+            "y": 497.4453125
+        }, {
+            "x": 459.00390625,
+            "y": 497.4453125
+        }, {
+            "x": 469.00390625,
+            "y": 518.4453125
+        }, {
+            "x": 466.00390625,
+            "y": 552.4453125
+        }, {
+            "x": 477.00390625,
+            "y": 579.4453125
+        }, {
+            "x": 492.00390625,
+            "y": 592.4453125
+        }, {
+            "x": 505.00390625,
+            "y": 578.4453125
+        }, {
+            "x": 519.00390625,
+            "y": 584.4453125
+        }, {
+            "x": 532.00390625,
+            "y": 573.4453125
+        }, {
+            "x": 545.00390625,
+            "y": 547.4453125
+        }, {
+            "x": 550.00390625,
+            "y": 553.4453125
+        }, {
+            "x": 584.00390625,
+            "y": 548.4453125
+        }, {
+            "x": 610.00390625,
+            "y": 546.4453125
+        }, {
+            "x": 615.00390625,
+            "y": 513.4453125
+        }, {
+            "x": 585.00390625,
+            "y": 497.4453125
+        }, {
+            "x": 576.00390625,
+            "y": 481.4453125
+        }, {
+            "x": 600.00390625,
+            "y": 471.4453125
+        }, {
+            "x": 604.00390625,
+            "y": 451.4453125
+        }, {
+            "x": 582.00390625,
+            "y": 427.4453125
+        }, {
+            "x": 564.00390625,
+            "y": 413.4453125
+        }, {
+            "x": 549.00390625,
+            "y": 392.4453125
+        }, {
+            "x": 534.00390625,
+            "y": 367.4453125
+        }, {
+            "x": 530.00390625,
+            "y": 356.4453125
+        }, {
+            "x": 529.00390625,
+            "y": 336.4453125
+        }, {
+            "x": 500.00390625,
+            "y": 317.4453125
+        }, {
+            "x": 490.00390625,
+            "y": 306.4453125
+        }, {
+            "x": 484.00390625,
+            "y": 278.4453125
+        }, {
+            "x": 471.00390625,
+            "y": 259.4453125
+        }, {
+            "x": 461.00390625,
+            "y": 249.4453125
+        }, {
+            "x": 430.00390625,
+            "y": 261.4453125
+        }, {
+            "x": 409.00390625,
+            "y": 253.4453125
+        }, {
+            "x": 381.00390625,
+            "y": 242.4453125
+        }, {
+            "x": 359.00390625,
+            "y": 218.4453125
+        }, {
+            "x": 334.00390625,
+            "y": 209.4453125
+        }, {
+            "x": 304.00390625,
+            "y": 232.4453125
+        }, {
+            "x": 286.00390625,
+            "y": 277.4453125
+        }, {
+            "x": 299.00390625,
+            "y": 306.4453125
+        }, {
+            "x": 312.00390625,
+            "y": 329.4453125
+        }, {
+            "x": 312.00390625,
+            "y": 348.4453125
+        }, {
+            "x": 295.00390625,
+            "y": 373.4453125
+        }, {
+            "x": 284.00390625,
+            "y": 397.4453125
+        }, {
+            "x": 265.00390625,
+            "y": 408.4453125
+        }, {
+            "x": 250.00390625,
+            "y": 423.4453125
+        }, {
+            "x": 232.00390625,
+            "y": 434.4453125
+        }, {
+            "x": 214.00390625,
+            "y": 431.4453125
+        }, {
+            "x": 217.00390625,
+            "y": 467.4453125
+        }, {
+            "x": 236.00390625,
+            "y": 477.4453125
+        }, {
+            "x": 257.00390625,
+            "y": 487.4453125
+        }, {
+            "x": 246.00390625,
+            "y": 509.4453125
+        }, {
+            "x": 242.00390625,
+            "y": 527.4453125
+        }, {
+            "x": 267.00390625,
+            "y": 541.4453125
+        }, {
+            "x": 301.00390625,
+            "y": 554.4453125
+        }, {
+            "x": 320.00390625,
+            "y": 552.4453125
+        }, {
+            "x": 329.00390625,
+            "y": 523.4453125
+        }, {
+            "x": 346.00390625,
+            "y": 526.4453125
+        }, {
+            "x": 351.00390625,
+            "y": 541.4453125
+        }, {
+            "x": 360.00390625,
+            "y": 553.4453125
+        }, {
+            "x": 379.00390625,
+            "y": 564.4453125
+        }, {
+            "x": 397.00390625,
+            "y": 567.4453125
+        }, {
+            "x": 424.00390625,
+            "y": 552.4453125
+        }, {
+            "x": 437.00390625,
+            "y": 538.4453125
+        }, {
+            "x": 441.00390625,
+            "y": 524.4453125
+        }]
 
-                let currentTask = task.nextElementSibling.querySelector("canvas").id.slice(-1);
-                polygonPoints = polygonPoints_[currentTask];
-                canvas = canvas_[currentTask];
-                ctx = ctx_[currentTask];
-                selectedPointIndex = selectedPointIndex_[currentTask];
-                pointRadius = pointRadius_[currentTask];
-                interactiveCanvas(canvas);
-                drawPolygon();
-            } else {
-                //show confirm button
-                confirmBtn.classList.remove("hidden");
-            }
-        });
-    });
+        //when the user submits we compare the submitted polygon with the ground truth
+        if (confirmBtn) {
+            confirmBtn.addEventListener("click", () => {
+                //compare the submitted polygon with the ground truth
+                console.log(groundTruth);
+                console.log(polygonPoints);
 
-    //when confirmed the values are sent to the server = saveResults.php
-    //if it returns the success message, the user is redirected to the results page = results.php
-    if (confirmBtn) {
-        confirmBtn.addEventListener("click", async () => {
-            //first collect the date from all the inputs and store it in the values object
-            console.log(values);
-            tasks.forEach(task => {
-                console.log(task);
+                //convert to turf.js format (also add the first point at the end to close the polygon)
+                groundTruth.push(groundTruth[0]);
+                polygonPoints.push(polygonPoints[0]);
+                //convert to wgs84 to get the correct area
+                let userPolygon = turf.polygon([polygonPoints.map(point => turf.toWgs84([point.x, point.y]))]);
+                let GTPolygon = turf.polygon([groundTruth.map(point => turf.toWgs84([point.x, point.y]))]);
+
+                //check if user polygon is valid
+                let kinks = turf.kinks(userPolygon);
+                if (kinks.features.length > 1) {
+                    alert("Your polygon is self-intersecting! Please improve your polygon and try again.");
+                    return;
+                }
+
+                //get the intersection
+                let intersection = turf.intersect(userPolygon, GTPolygon);
+                //get the union
+                let union = turf.union(userPolygon, GTPolygon);
+                //get areas of all polygons
+                let userArea = turf.area(userPolygon);
+                let GTArea = turf.area(GTPolygon);
+                let intersectionArea = turf.area(intersection);
+                let unionArea = turf.area(union);
+
+                console.log('%cuser Area', 'color:blue', userArea.toLocaleString('de-DE', {
+                    minimumFractionDigits: 2
+                }));
+                console.log('%cGT Area', 'color:black', GTArea.toLocaleString('de-DE', {
+                    minimumFractionDigits: 2
+                }));
+                console.log('%cintersection Area', 'color:red', intersectionArea.toLocaleString('de-DE', {
+                    minimumFractionDigits: 2
+                }));
+                console.log('%cunion Area', 'color:green', unionArea.toLocaleString('de-DE', {
+                    minimumFractionDigits: 2
+                }));
+                //get iou
+                let iou = intersectionArea / unionArea;
+
+                console.log('%cIoU', 'color:orange', (100 * iou).toFixed(2));
+
+                if (iou >= 0.85) {
+                    //if the sequence is correct, we allow the user to go to the main task
+                    document.querySelector('.task-wrapper').innerHTML = "<h2>Correct!</h2><p>You will now be redirected to the main task.</p><div class='loader'><i class='fas fa-spinner'></i></div>";
+                    setTimeout(() => {
+                        window.location.href = "index.php?campaign=" + userInfo.campaign + "&worker=" + userInfo.worker + "&rand_key=" + userInfo.random;
+                    }, 3000);
+                } else {
+                    //otherwise, we show a warning telling the user to try again
+                    alert("Your selection is not good enough! Please improve your polygon and try again.");
+                }
             });
-            //send data as json 
-            let data = JSON.stringify({
-                userInfo: userInfo,
-                dataInfo: dataInfo,
-                values: values,
-            });
-            let response = await fetch("saveResults.php", {
-                method: "POST",
-                body: data,
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            let result = await response.text();
-            console.log(result);
-            if (result == "success") {
-                window.location.href = "results.php?vcode=" + userInfo.vcode;
-            }
-        });
+        }
     }
 } else if (page === "results.php") {
     //the results page onle needs a simple button to copy the vcode to the clipboard

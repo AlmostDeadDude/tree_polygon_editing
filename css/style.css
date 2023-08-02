@@ -168,6 +168,7 @@ h1 {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-around;
+  text-align: center;
   margin: 10px 0;
   opacity: 1;
   z-index: 100;
@@ -178,6 +179,11 @@ h1 {
   opacity: 0;
   z-index: -1;
   position: absolute;
+}
+
+.task-wrapper .loader i {
+  font-size: 50px;
+  animation: spin 2s linear infinite;
 }
 
 .canvas-wrapper {
@@ -389,4 +395,13 @@ button.toTaskBtn:hover {
 button.toTaskBtn:active {
   filter: brightness(0.9);
   transform: scale(0.98);
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(359deg);
+  }
 }

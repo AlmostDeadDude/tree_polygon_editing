@@ -10,11 +10,11 @@ echo '<!DOCTYPE html>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="css/style.css">
     <script src="js/points.js"></script>
-    <title>Polygon evaluation</title>
+    <title>Polygon editing</title>
 </head>
 <body>
     <header>
-        <span>Polygon evaluation</span>
+        <span>Polygon editing</span>
         <a href="about.php" target="_blank" rel="noopener noreferrer">
             <i class="fas fa-info"></i>
         </a>

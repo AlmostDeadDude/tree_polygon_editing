@@ -80,8 +80,11 @@ while (($line = fgets($handle)) !== false) {
 fclose($handle);
 
 // Calculate canvas size based on background image
-$bg_image_filename = 'pics/70.png'; // TODO: Update with the actual filename of the background image
-$bg_image_info = getimagesize($bg_image_filename);
+$bg_image_filenames = array();
+foreach ($data as $json_obj) {
+  $bg_image_filenames[] = 'pics/' . $json_obj[0]['filename'] . '.png';
+}
+$bg_image_info = getimagesize($bg_image_filenames[0]);
 $bg_image_width = $bg_image_info[0];
 $bg_image_height = $bg_image_info[1];
 
@@ -108,7 +111,9 @@ foreach ($data as $index => $json_obj) {
   // Extract data
   $points = $json_obj[0]['points'];
   $number_points = $json_obj[0]['number_points'];
-  $ID = $json_obj[0]['ID'];
+  $ID = $json_obj[0]['ID'] . '-' . $json_obj[0]['filename'];
+  $bg_image_filename = $bg_image_filenames[$index];
+
   // $max_x = $json_obj[0]['max_x'];
   // $min_x = $json_obj[0]['min_x'];
   // $max_y = $json_obj[0]['max_y'];
@@ -183,7 +188,7 @@ const userInfo = {
 };
 const dataInfo = {
   file: "' . $json_filename . '",
-  image: "' . $bg_image_filename . '",
+  image: "' . join('&', $bg_image_filenames) . '",
   job: "' . $next_job . '",
   iteration: "' . $next_it . '",
 };

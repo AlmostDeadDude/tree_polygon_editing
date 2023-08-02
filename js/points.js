@@ -1,7 +1,7 @@
 //check what is the page name, is it index.php or results.php
 let Cpage = window.location.pathname.split("/").pop();
-//specific for index.php
-if (Cpage === "index.php" || Cpage === "") {
+//specific for index.php and qualification.php
+if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php") {
 
     const originalCanvasSize = 833;
     let scaledCanvasSize; // this changes when the window is resized
@@ -149,7 +149,9 @@ if (Cpage === "index.php" || Cpage === "") {
     // Function to handle mouse up event
     function onMouseUp(event) {
         canvas.removeEventListener('mousemove', onMouseMove);
-        canvas.parentElement.querySelector('.nextBtn').disabled = false;
+        if (Cpage !== "qualification.php") {
+            canvas.parentElement.querySelector('.nextBtn').disabled = false;
+        }
     }
 
     // Function to handle click event on the delete button
