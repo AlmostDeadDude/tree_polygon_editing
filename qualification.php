@@ -4,7 +4,6 @@ session_start();
 //we are using the session variable to remember when user completed the qualification test
 $_SESSION['qualification'] = true;
 
-$firstTime = $_GET['firstTime'];
 $Campaign_id = $_GET["campaign"];
 $Worker_id = $_GET["worker"];
 $Rand_key = $_GET["rand_key"];
@@ -39,25 +38,25 @@ let pointRadius_ = [];
 </script>';
 // Iterate through data array
 foreach ($data as $index => $json_obj) {
-      // Extract data
-      $points = $json_obj[0]['points'];
-      $number_points = $json_obj[0]['number_points'];
-      $ID = $json_obj[0]['ID'];
-      // $max_x = $json_obj[0]['max_x'];
-      // $min_x = $json_obj[0]['min_x'];
-      // $max_y = $json_obj[0]['max_y'];
-      // $min_y = $json_obj[0]['min_y'];
+    // Extract data
+    $points = $json_obj[0]['points'];
+    $number_points = $json_obj[0]['number_points'];
+    $ID = $json_obj[0]['ID'];
+    // $max_x = $json_obj[0]['max_x'];
+    // $min_x = $json_obj[0]['min_x'];
+    // $max_y = $json_obj[0]['max_y'];
+    // $min_y = $json_obj[0]['min_y'];
 
-      // Calculate canvas size
-      $canvas_width = $bg_image_width; //$max_x - $min_x;
-      $canvas_height = $bg_image_height; //$max_y - $min_y;
+    // Calculate canvas size
+    $canvas_width = $bg_image_width; //$max_x - $min_x;
+    $canvas_height = $bg_image_height; //$max_y - $min_y;
 
-      // Output canvas and points
-      echo '<div class="task-wrapper hidden" id="task_' . $ID . '">';
-      echo '<div class="canvas-wrapper">';
-      echo '<h1>Please improve the selection</h1>';
-      echo '<canvas id="canvas_' . $index . '" width="' . $canvas_width . '" height="' . $canvas_height . '" style="background-image:url(' . $bg_image_filename . ');border:1px solid black;"></canvas>';
-      echo '<script>
+    // Output canvas and points
+    echo '<div class="task-wrapper hidden" id="task_' . $ID . '">';
+    echo '<div class="canvas-wrapper">';
+    echo '<h1>Please improve the selection</h1>';
+    echo '<canvas id="canvas_' . $index . '" width="' . $canvas_width . '" height="' . $canvas_height . '" style="background-image:url(' . $bg_image_filename . ');border:1px solid black;"></canvas>';
+    echo '<script>
           // Array to store the points of the polygon
           polygonPoints_[' . $index . '] = [];
           // Index of the currently selected point (-1 means none selected)
@@ -72,29 +71,29 @@ foreach ($data as $index => $json_obj) {
           ctx_[' . $index . '].strokeStyle = "black";
           // Draw points and lines on canvas
           ';
-      foreach ($points as $i => $point) {
-            echo 'var x' . $i . ' = ' . $point['x'] . ';
+    foreach ($points as $i => $point) {
+        echo 'var x' . $i . ' = ' . $point['x'] . ';
           var y' . $i . ' = ' . $point['y'] . ';
           ctx_[' . $index . '].arc(x' . $i . ', y' . $i . ', 2, 0, 2 * Math.PI);
           //fill the point list
           polygonPoints_[' . $index . '].push({"x":x' . $i . ', "y":y' . $i . '});
           ';
-      }
-      echo 'ctx_[' . $index . '].fill();
+    }
+    echo 'ctx_[' . $index . '].fill();
           ';
-      echo 'ctx_[' . $index . '].beginPath();
+    echo 'ctx_[' . $index . '].beginPath();
           ctx_[' . $index . '].moveTo(x0, y0);
           ';
-      for ($i = 1; $i < count($points); $i++) {
-            echo 'ctx_[' . $index . '].lineTo(x' . $i . ', y' . $i . ');
+    for ($i = 1; $i < count($points); $i++) {
+        echo 'ctx_[' . $index . '].lineTo(x' . $i . ', y' . $i . ');
           ';
-      }
-      echo 'ctx_[' . $index . '].lineTo(x0, y0);
+    }
+    echo 'ctx_[' . $index . '].lineTo(x0, y0);
           ctx_[' . $index . '].stroke();
           ctx_[' . $index . '].closePath();
           ';
-      echo '</script>';
-      echo '</div>
+    echo '</script>';
+    echo '</div>
   </div>';
 }
 
@@ -112,6 +111,7 @@ echo '
 const userInfo = {
   campaign: "' . $Campaign_id . '",
   worker: "' . $Worker_id . '",
+  random: "' . $Rand_key . '",
   vcode: "' . $vcode_for_proof . '"
 };';
 echo '</script>';

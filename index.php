@@ -192,6 +192,7 @@ echo '
 const userInfo = {
   campaign: "' . $Campaign_id . '",
   worker: "' . $Worker_id . '",
+  random: "' . $Rand_key . '",
   vcode: "' . $vcode_for_proof . '"
 };
 const dataInfo = {
