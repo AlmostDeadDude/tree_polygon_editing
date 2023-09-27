@@ -21,7 +21,7 @@ $vcode_for_proof = "mw-" . hash("sha256", $String_final);
 //first count how many files are in the jobs folder
 $total_numb_jobs = count(glob('jobs/*'));
 //set up the desired number of iterations
-$total_numb_it = 5;
+$total_numb_it = 1;
 //default values = error codes for later
 $next_job = 10000;
 $next_it = 10000;
@@ -86,11 +86,12 @@ while (($line = fgets($handle)) !== false) {
   $data[] = $json_data;
 }
 fclose($handle);
-
+$data = $data[0];
 // Calculate canvas size based on background image
 $bg_image_filenames = array();
 foreach ($data as $json_obj) {
-  $bg_image_filenames[] = 'pics/' . $json_obj[0]['filename'] . '.png';
+  $json_obj = $json_obj[0];
+  $bg_image_filenames[] = 'pics/' . $json_obj['filename'] . '.png';
 }
 $bg_image_info = getimagesize($bg_image_filenames[0]);
 $bg_image_width = $bg_image_info[0];

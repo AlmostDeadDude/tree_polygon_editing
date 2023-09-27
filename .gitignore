@@ -1,5 +1,8 @@
 /results
 /user_info
 /pics/misc
+/pics/[0-9]*.png
 results.json
 /original_data
+/jobs/*
+!jobs/job_1.txt
