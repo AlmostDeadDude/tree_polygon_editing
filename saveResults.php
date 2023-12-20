@@ -9,6 +9,7 @@ $json = json_decode($data);
 $userInfo = $json->userInfo;
 $dataInfo = $json->dataInfo;
 $values = $json->values;
+$userLog = $json->userLog;
 
 //merge userInfo and dataInfo into one object
 foreach ($userInfo as $key => $value) {
@@ -28,6 +29,7 @@ foreach ($userInfo as $key => $value) {
 try {
     file_put_contents("results/job_" . $dataInfo->job . "_" . $dataInfo->iteration . ".txt", json_encode($values));
     file_put_contents("user_info/job_" . $dataInfo->job . "_" . $dataInfo->iteration . ".txt", json_encode($dataInfo));
+    file_put_contents("user_logs/job_" . $dataInfo->job . "_" . $dataInfo->iteration . ".json", json_encode($userLog));
     echo "success";
 } catch (Exception $e) {
     echo "error";

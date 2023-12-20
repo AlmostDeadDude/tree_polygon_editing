@@ -1,5 +1,6 @@
 /results
 /user_info
+/user_logs
 /pics/misc
 /pics/[0-9]*.png
 results.json

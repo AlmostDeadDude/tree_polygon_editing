@@ -21,7 +21,7 @@ $vcode_for_proof = "mw-" . hash("sha256", $String_final);
 //first count how many files are in the jobs folder
 $total_numb_jobs = count(glob('jobs/*'));
 //set up the desired number of iterations
-$total_numb_it = 1;
+$total_numb_it = 5;
 //default values = error codes for later
 $next_job = 10000;
 $next_it = 10000;
@@ -138,6 +138,11 @@ foreach ($data as $index => $json_obj) {
   echo '<h1>Polygon #' . $ID . '</h1>';
   echo '<canvas id="canvas_' . $index . '" width="' . $canvas_width . '" height="' . $canvas_height . '" style="background-image:url(' . $bg_image_filename . ');border:1px solid black;"></canvas>';
   echo '<script>
+          //create new element in the userActions array for this particular task/polygon
+          userActions.push({
+            "ID_filename": "' . $ID . '",
+            "log": []
+          });
           // Array to store the points of the polygon
           polygonPoints_[' . $index . '] = [];
           // Index of the currently selected point (-1 means none selected)

@@ -54,6 +54,11 @@ if (page === "index.php" || page === "" || page === 'qualification.php') {
                 values[task.id] = polygonPoints;
                 console.log(values);
 
+                //log the current userActions to the console
+                console.log('userActions:');
+                console.log(userActions);
+                console.log('##########################');
+
                 //hide the current task
                 task.classList.add("hidden");
                 //show the next task if there is one
@@ -95,6 +100,7 @@ if (page === "index.php" || page === "" || page === 'qualification.php') {
                     userInfo: userInfo,
                     dataInfo: dataInfo,
                     values: values,
+                    userLog: userActions
                 });
                 let response = await fetch("saveResults.php", {
                     method: "POST",
