@@ -20,7 +20,7 @@ if (detectmobile()) {
 }
 
 //specific for index.php and results.php
-if (page === "index.php" || page === "" || page === 'qualification.php') {
+if (page === "index.php" || page === "" || page === 'qualification.php' || page === 'userLog.php') {
     // variables and dom elements
     const values = {};
     const confirmBtn = document.getElementById("confirmBtn");
@@ -37,7 +37,7 @@ if (page === "index.php" || page === "" || page === 'qualification.php') {
     });
 
     //specific for index.php and results.php
-    if (page === "index.php" || page === "") {
+    if (page === "index.php" || page === "" || page === 'userLog.php') {
         //make tasks interactive
         let tasks = document.querySelectorAll(".task-wrapper");
         tasks.forEach(task => {

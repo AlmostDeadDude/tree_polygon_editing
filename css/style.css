@@ -416,3 +416,64 @@ button.toTaskBtn:active {
     transform: rotate(359deg);
   }
 }
+
+/* replays */
+.replay-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+  font-size: 20px;
+}
+
+.replay-controls .replay-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.replay-controls button {
+  width: 150px;
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 18px;
+  border: 0;
+  outline: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: rgb(174, 199, 244);
+  color: #000;
+  position: relative;
+}
+
+.replay-controls button:hover {
+  filter: brightness(1.1);
+}
+
+.replay-controls button:active {
+  filter: brightness(0.9);
+  transform: scale(0.98);
+}
+
+.replay-controls button[disabled] {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.replay-controls button[disabled]:hover {
+  filter: brightness(1);
+}
+
+.replay-controls button.active::after {
+  content: " (running now)";
+  font-size: 12px;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 100%);
+}

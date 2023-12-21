@@ -5,7 +5,7 @@ let Cpage = window.location.pathname.split("/").pop();
 let userActions = [];
 
 //specific for index.php and qualification.php
-if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php") {
+if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php" || Cpage === "userLog.php") {
 
     const originalCanvasSize = 833;
     let scaledCanvasSize; // this changes when the window is resized
