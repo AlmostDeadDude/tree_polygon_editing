@@ -33,6 +33,8 @@ let polygonPoints_ = [];
 let polygonPointsBackup_ = [];
 let canvas_ = [];
 let ctx_ = [];
+let cursor_overlay_ = [];
+let cursor_overlay_ctx_ = [];
 let selectedPointIndex_ = [];
 let selectedPointIndexBackup_ = [];
 let pointRadius_ = [];
@@ -58,7 +60,7 @@ foreach ($job_data as $index => $json_obj) {
   foreach ($log_data[$index]->log as $log) {
     if ($log->action == "select"){
         $select_actions++;
-    } else if ($log->action == "move"){
+    } else if ($log->action == "move" || $log->action == "mousedrag"){
         $move_actions++;
     } else if ($log->action == "create"){
         $create_actions++;
@@ -70,7 +72,7 @@ foreach ($job_data as $index => $json_obj) {
 
   // Output canvas and points
   echo '<div class="task-wrapper" id="task_' . $ID . '">';
-  echo '<div class="canvas-wrapper">';
+  echo '<div class="canvas-wrapper" style="position: relative;">';
   echo '<h1>Polygon #' . $ID . '</h1>';
   echo '<div class="replay-controls">';
   echo '<span>Replay of '. $total_actions.' user actions (select:'.$select_actions.', move:'.$move_actions.', create:'.$create_actions.', delete:'.$delete_actions.')</span><br><span>Total time: '.($total_time/1000).' seconds</span>';
@@ -83,8 +85,12 @@ foreach ($job_data as $index => $json_obj) {
     echo '<button class="stop"><i class="fas fa-stop"></i> Stop/Reset</button>';
     echo '</div>';
   }
+  echo '<div class="timeline-bar" style="width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; padding: 3px; height: 10px; background-color:#666;">';
+  echo '<div class="timeline-progress" style="height: 4px; width: 0%; background-color: white; right-border: 2px solid black;" data-totaltime = "'.$total_time.'"></div>';
+  echo '</div>';
   echo '</div>';
   echo '<canvas id="canvas_' . $index . '" width="' . $canvas_width . '" height="' . $canvas_height . '" style="background-image:url(' . $bg_image_filename . ');border:1px solid black;"></canvas>';
+  echo '<canvas id="cursor_overlay_' . $index . '" width="' . $canvas_width . '" height="' . $canvas_height . '" style="position:absolute;bottom:0;left:50%;border:1px solid black; transform: translateX(-50%);"></canvas>';
   echo '<script>
           // Array to store the points of the polygon
           polygonPoints_[' . $index . '] = [];
@@ -101,6 +107,12 @@ foreach ($job_data as $index => $json_obj) {
           ctx_[' . $index . '].lineWidth = "5";
           ctx_[' . $index . '].strokeStyle = "black";
           // Draw points and lines on canvas
+
+          cursor_overlay_[' . $index . '] = document.getElementById("cursor_overlay_' . $index . '");
+          cursor_overlay_ctx_[' . $index . '] = cursor_overlay_[' . $index . '].getContext("2d");
+          cursor_overlay_ctx_[' . $index . '].fillStyle = "rgba(255,0,0,1)";
+          cursor_overlay_ctx_[' . $index . '].lineWidth = "15";
+          cursor_overlay_ctx_[' . $index . '].strokeStyle = "red";
           ';
   foreach ($points as $i => $point) {
     echo 'var x' . $i . ' = ' . $point->x . ';
@@ -125,7 +137,7 @@ foreach ($job_data as $index => $json_obj) {
           ctx_[' . $index . '].closePath();
           ';
   echo '</script>';
-  echo '<button class="nextBtn" style="display: none;"><span>Next</span><small>' . ($index + 1) . '/' . count($data) . '</small></button>
+  echo '<button class="nextBtn" style="display: none;"></button>
   </div>
   </div>';
 }
@@ -137,6 +149,10 @@ let stopPressed = false;
 let polygonPoints;
 let canvas;
 let ctx;
+let cursor_overlay;
+let cursor_overlay_ctx;
+const cursor_png = new Image();
+cursor_png.src = "pics/misc/cursor.png";
 let selectedPointIndex;
 let pointRadius;
 let userLogs = ' . json_encode($log_data) . ';
@@ -179,13 +195,18 @@ function play(ind, mode = "real"){
     restorePolygon(ind);
     let cnv = canvas_[ind];
     let ctx = ctx_[ind];
+    let c_o = cursor_overlay_[ind];
+    let c_o_ctx = cursor_overlay_ctx_[ind];
     let pts = polygonPoints_[ind];
     let userLog = userLogs[ind];
     let initialTimestamp = userLog.log[0].timestamp;
     let moddedTimestamps = [];
+    let percentProgress = [];
     userLog.log.forEach((log, ii) => {
         //reduce the timestamps to 0
         moddedTimestamps[ii] = log.timestamp - initialTimestamp;
+        //also generate the progress bar data
+        percentProgress[ii] = moddedTimestamps[ii] / c_o.parentElement.querySelector(".timeline-progress").dataset.totaltime * 100;
     });
     //adjust the timestamps and the button status to the mode
     let p = cnv.parentElement.querySelector(".play");
@@ -236,12 +257,15 @@ function play(ind, mode = "real"){
     }
     console.log(userLog);
     //next we replay the user log in real time using timestamps starting from the initial points configuration from pts
-    //there are 4 types of events in the user log: "select", "move", "create", "delete"
+    //there are 5 types of events in the user log: "select", "move", "create", "delete", "mousedrag"
+    //there is also a "mousemove" for the cursor overlay
     
     for (let i = 0; i < userLog.log.length; i++){
         let currentStep = userLog.log[i];
-        setTimeout(()=>{
+        timeout = setTimeout(()=>{
             if (stopPressed){
+                //we need to reset everything and not let the next step execute
+                window.location.reload(); //i am ashamed, but that ugly thing will do
                 currentlyPlaying = false;
                 console.log("playback stopped");
                 p.disabled = false;
@@ -254,20 +278,28 @@ function play(ind, mode = "real"){
                 p1.classList.remove("active");
                 return;
             }
+
+            //update the progress bar
+            c_o.parentElement.querySelector(".timeline-progress").style.width = percentProgress[i] + "%";
+
             console.log("##################################");
             console.log(`step ${i+1}/${userLog.log.length} (${currentStep.timestamp / 1000} seconds)`);
+
+            //display the cursor movement
+            c_o_ctx.clearRect(0, 0, c_o.width, c_o.height);
+            c_o_ctx.beginPath();
+            //Cursor icon by Icons8 https://icons8.com
+            c_o_ctx.drawImage(cursor_png, currentStep.coordinates.x - 15, currentStep.coordinates.y - 15, 30, 30);
+            c_o_ctx.fill();
+            c_o_ctx.stroke();
+
+            console.log(`moving mouse to ${currentStep.coordinates.x}, ${currentStep.coordinates.y}`);
+
             if (currentStep.action == "select"){
                 //select the point
                 selectedPointIndex_[ind] = currentStep.pointIndex;
                 redrawPolygon(ind);
                 console.log(`selecting point ${currentStep.pointIndex}`);
-            } else if (currentStep.action == "move"){
-                //move the point
-                selectedPointIndex_[ind] = currentStep.pointIndex;
-                pts[currentStep.pointIndex].x = currentStep.coordinates.x;
-                pts[currentStep.pointIndex].y = currentStep.coordinates.y;
-                redrawPolygon(ind);
-                console.log(`moving point ${currentStep.pointIndex} to ${currentStep.coordinates.x}, ${currentStep.coordinates.y}`);
             } else if (currentStep.action == "create"){
                 //create the point
                 //this one is a bit tricky - we need to insert the point at the right index and adjust others
@@ -282,7 +314,15 @@ function play(ind, mode = "real"){
                 pts.splice(currentStep.pointIndex, 1);
                 redrawPolygon(ind);
                 console.log(`deleting point ${currentStep.pointIndex}`);
+            } else if (currentStep.action == "move" || currentStep.action == "mousedrag"){ //move was in the legacy version, probably can get rid of it completely but it makes sense to keep it if we ever want to go back to only record the finished actions and not all the mouse movements
+                //move the point
+                selectedPointIndex_[ind] = currentStep.pointIndex;
+                pts[currentStep.pointIndex].x = currentStep.coordinates.x;
+                pts[currentStep.pointIndex].y = currentStep.coordinates.y;
+                redrawPolygon(ind);
+                console.log(`moving point ${currentStep.pointIndex} to ${currentStep.coordinates.x}, ${currentStep.coordinates.y}`);
             }
+
             if (i == userLog.log.length - 1){
                 currentlyPlaying = false;
                 console.log("playback finished");
@@ -294,6 +334,7 @@ function play(ind, mode = "real"){
                 p05.classList.remove("active");
                 p1.disabled = false;
                 p1.classList.remove("active");
+                window.location.reload(); //i am ashamed again, but this solves a lot of problems
             }
         }, moddedTimestamps[i]);
     }

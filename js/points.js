@@ -139,6 +139,30 @@ if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php" || Cp
         updateCanvas();
     }
 
+    let prevTimestamp = 0;
+    //Function to handle cursor log
+    function cursorLog(event) {
+        const mouseX = event.offsetX * (originalCanvasSize / scaledCanvasSize);
+        const mouseY = event.offsetY * (originalCanvasSize / scaledCanvasSize);
+
+        //only log 30 times in a second for optimizing performance/optical flow 
+        if (Date.now() - prevTimestamp < 33) {
+            return;
+        }
+        prevTimestamp = Date.now();
+
+        //update the user actions log
+        userActions[canvas.id.slice(-1)]["log"].push({
+            action: "mousemove",
+            pointIndex: '-1',
+            coordinates: {
+                x: mouseX,
+                y: mouseY
+            },
+            timestamp: Date.now()
+        });
+    }
+
 
     // Function to handle mouse move event while dragging a point
     function onMouseMove(event) {
@@ -146,6 +170,18 @@ if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php" || Cp
         const mouseY = event.offsetY * (originalCanvasSize / scaledCanvasSize);
         polygonPoints[selectedPointIndex].x = mouseX;
         polygonPoints[selectedPointIndex].y = mouseY;
+
+        //update the user actions log
+        userActions[canvas.id.slice(-1)]["log"].push({
+            action: "mousedrag",
+            pointIndex: selectedPointIndex,
+            coordinates: {
+                x: mouseX,
+                y: mouseY
+            },
+            timestamp: Date.now()
+        });
+
         updateCanvas();
     }
 
@@ -242,6 +278,7 @@ if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php" || Cp
     // Add event listeners to the canvas
     function interactiveCanvas(canvas) {
         canvas.addEventListener('mousemove', onMouseHover);
+        canvas.addEventListener('mousemove', cursorLog);
         canvas.addEventListener('mousedown', onMouseDown);
         canvas.addEventListener('mouseup', onMouseUp);
     }
