@@ -10,7 +10,7 @@ echo '
             </p>
         </div>
         <div class="footer-bottom">
-            <p>&copy <span id="year">2023</span></p>
+            <p>&copy <span id="year">2024</span></p>
         </div>
     </footer>
 <script src="js/script.js"></script>

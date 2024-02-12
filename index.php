@@ -87,6 +87,7 @@ while (($line = fgets($handle)) !== false) {
 }
 fclose($handle);
 $data = $data[0];
+
 // Calculate canvas size based on background image
 $bg_image_filenames = array();
 foreach ($data as $json_obj) {

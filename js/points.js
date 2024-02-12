@@ -72,12 +72,24 @@ if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php" || Cp
             if (distance <= pointRadius) {
                 selectedPointIndex = i;
                 canvas.addEventListener('mousemove', onMouseMove);
-                //update the user actions log
-                //to avoid unnecessary entries, we check if the last entry in the log has same action, pointIndex and coordinates
-                //if so, we do not add a new entry
-                if (userActions[canvas.id.slice(-1)]["log"].length > 0) {
-                    const lastEntry = userActions[canvas.id.slice(-1)]["log"][userActions[canvas.id.slice(-1)]["log"].length - 1];
-                    if (lastEntry.action !== "select" || lastEntry.pointIndex !== selectedPointIndex || lastEntry.coordinates.x !== mouseX || lastEntry.coordinates.y !== mouseY) {
+                //update the user actions log if not in qualification.php
+                if (Cpage !== "qualification.php") {
+                    //to avoid unnecessary entries, we check if the last entry in the log has same action, pointIndex and coordinates
+                    //if so, we do not add a new entry
+                    if (userActions[canvas.id.slice(-1)]["log"].length > 0) {
+                        const lastEntry = userActions[canvas.id.slice(-1)]["log"][userActions[canvas.id.slice(-1)]["log"].length - 1];
+                        if (lastEntry.action !== "select" || lastEntry.pointIndex !== selectedPointIndex || lastEntry.coordinates.x !== mouseX || lastEntry.coordinates.y !== mouseY) {
+                            userActions[canvas.id.slice(-1)]["log"].push({
+                                action: "select",
+                                pointIndex: selectedPointIndex,
+                                coordinates: {
+                                    x: mouseX,
+                                    y: mouseY
+                                },
+                                timestamp: Date.now()
+                            });
+                        }
+                    } else {
                         userActions[canvas.id.slice(-1)]["log"].push({
                             action: "select",
                             pointIndex: selectedPointIndex,
@@ -88,16 +100,6 @@ if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php" || Cp
                             timestamp: Date.now()
                         });
                     }
-                } else {
-                    userActions[canvas.id.slice(-1)]["log"].push({
-                        action: "select",
-                        pointIndex: selectedPointIndex,
-                        coordinates: {
-                            x: mouseX,
-                            y: mouseY
-                        },
-                        timestamp: Date.now()
-                    });
                 }
                 break;
             }
@@ -122,16 +124,18 @@ if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php" || Cp
                     });
                     selectedPointIndex = nextIndex;
                     canvas.addEventListener('mousemove', onMouseMove);
-                    //update the user actions log
-                    userActions[canvas.id.slice(-1)]["log"].push({
-                        action: "create",
-                        pointIndex: selectedPointIndex,
-                        coordinates: {
-                            x: mouseX,
-                            y: mouseY
-                        },
-                        timestamp: Date.now()
-                    });
+                    //update the user actions log if not in qualification.php
+                    if (Cpage !== "qualification.php") {
+                        userActions[canvas.id.slice(-1)]["log"].push({
+                            action: "create",
+                            pointIndex: selectedPointIndex,
+                            coordinates: {
+                                x: mouseX,
+                                y: mouseY
+                            },
+                            timestamp: Date.now()
+                        });
+                    }
                     break;
                 }
             }
@@ -151,16 +155,18 @@ if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php" || Cp
         }
         prevTimestamp = Date.now();
 
-        //update the user actions log
-        userActions[canvas.id.slice(-1)]["log"].push({
-            action: "mousemove",
-            pointIndex: '-1',
-            coordinates: {
-                x: mouseX,
-                y: mouseY
-            },
-            timestamp: Date.now()
-        });
+        //update the user actions log if not in qualification.php
+        if (Cpage !== "qualification.php") {
+            userActions[canvas.id.slice(-1)]["log"].push({
+                action: "mousemove",
+                pointIndex: '-1',
+                coordinates: {
+                    x: mouseX,
+                    y: mouseY
+                },
+                timestamp: Date.now()
+            });
+        }
     }
 
 
@@ -171,16 +177,18 @@ if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php" || Cp
         polygonPoints[selectedPointIndex].x = mouseX;
         polygonPoints[selectedPointIndex].y = mouseY;
 
-        //update the user actions log
-        userActions[canvas.id.slice(-1)]["log"].push({
-            action: "mousedrag",
-            pointIndex: selectedPointIndex,
-            coordinates: {
-                x: mouseX,
-                y: mouseY
-            },
-            timestamp: Date.now()
-        });
+        //update the user actions log if not in qualification.php
+        if (Cpage !== "qualification.php") {
+            userActions[canvas.id.slice(-1)]["log"].push({
+                action: "mousedrag",
+                pointIndex: selectedPointIndex,
+                coordinates: {
+                    x: mouseX,
+                    y: mouseY
+                },
+                timestamp: Date.now()
+            });
+        }
 
         updateCanvas();
     }
@@ -228,25 +236,26 @@ if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php" || Cp
         const mouseX = event.offsetX * (originalCanvasSize / scaledCanvasSize);
         const mouseY = event.offsetY * (originalCanvasSize / scaledCanvasSize);
         canvas.removeEventListener('mousemove', onMouseMove);
+
+        //update the user actions log if not in qualification.php
         if (Cpage !== "qualification.php") {
             canvas.parentElement.querySelector('.nextBtn').disabled = false;
-        }
-        //update the user actions log
-        //mouse up is tricky because it always adds an entry to the log, even if point is not moved, but rather selected/created
-        //to avoid unnecessary entries, we compare the event coordinates with the last entry in the log and only add a new entry if they are different
-        //we also check the pointIndex of the current entry and do not add anything if the pointIndex is -1 (no point selected)
-        if (userActions[canvas.id.slice(-1)]["log"].length > 0) {
-            const lastEntry = userActions[canvas.id.slice(-1)]["log"][userActions[canvas.id.slice(-1)]["log"].length - 1];
-            if (lastEntry.pointIndex !== -1 && (lastEntry.coordinates.x !== mouseX || lastEntry.coordinates.y !== mouseY)) {
-                userActions[canvas.id.slice(-1)]["log"].push({
-                    action: "move",
-                    pointIndex: selectedPointIndex,
-                    coordinates: {
-                        x: mouseX,
-                        y: mouseY
-                    },
-                    timestamp: Date.now()
-                });
+            //mouse up is tricky because it always adds an entry to the log, even if point is not moved, but rather selected/created
+            //to avoid unnecessary entries, we compare the event coordinates with the last entry in the log and only add a new entry if they are different
+            //we also check the pointIndex of the current entry and do not add anything if the pointIndex is -1 (no point selected)
+            if (userActions[canvas.id.slice(-1)]["log"].length > 0) {
+                const lastEntry = userActions[canvas.id.slice(-1)]["log"][userActions[canvas.id.slice(-1)]["log"].length - 1];
+                if (lastEntry.pointIndex !== -1 && (lastEntry.coordinates.x !== mouseX || lastEntry.coordinates.y !== mouseY)) {
+                    userActions[canvas.id.slice(-1)]["log"].push({
+                        action: "move",
+                        pointIndex: selectedPointIndex,
+                        coordinates: {
+                            x: mouseX,
+                            y: mouseY
+                        },
+                        timestamp: Date.now()
+                    });
+                }
             }
         }
     }
@@ -256,16 +265,18 @@ if (Cpage === "index.php" || Cpage === "" || Cpage === "qualification.php" || Cp
         //delete the selected point if there are more than 3 points
         if (selectedPointIndex !== -1) {
             if (polygonPoints.length > 3) {
-                //update the user actions log
-                userActions[canvas.id.slice(-1)]["log"].push({
-                    action: "delete",
-                    pointIndex: selectedPointIndex,
-                    coordinates: {
-                        x: polygonPoints[selectedPointIndex].x,
-                        y: polygonPoints[selectedPointIndex].y
-                    },
-                    timestamp: Date.now()
-                });
+                //update the user actions log if not in qualification.php
+                if (Cpage !== "qualification.php") {
+                    userActions[canvas.id.slice(-1)]["log"].push({
+                        action: "delete",
+                        pointIndex: selectedPointIndex,
+                        coordinates: {
+                            x: polygonPoints[selectedPointIndex].x,
+                            y: polygonPoints[selectedPointIndex].y
+                        },
+                        timestamp: Date.now()
+                    });
+                }
                 polygonPoints.splice(selectedPointIndex, 1);
                 selectedPointIndex = -1;
                 updateCanvas();
