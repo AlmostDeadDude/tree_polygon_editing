@@ -7,3 +7,4 @@ results.json
 /original_data
 /jobs/*
 !jobs/job_1.txt
+/references
