@@ -25,7 +25,11 @@ foreach ($files as $path) {
 }
 
 usort($entries, function ($a, $b) {
-    return $b['mtime'] <=> $a['mtime'];
+    $comparison = strnatcmp($a['jobId'], $b['jobId']);
+    if ($comparison === 0) {
+        return strnatcmp($a['iteration'], $b['iteration']);
+    }
+    return $comparison;
 });
 
 echo '<section class="info-block">
