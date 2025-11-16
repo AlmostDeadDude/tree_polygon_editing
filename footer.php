@@ -11,7 +11,7 @@ echo '
         </div>
         <div class="footer-bottom">
             <small>
-                © <span id="year">2023</span>, Ivan Shiller <a href="https://github.com/AlmostDeadDude/CountIt2-Interface" target="_blank" rel="noopener noreferrer">
+                © <span id="year">2023</span>, Ivan Shiller <a href="https://github.com/AlmostDeadDude/tree_polygon_editing" target="_blank" rel="noopener noreferrer">
                     <i class="fa-brands fa-github"></i>
                 </a> 
             </small> 
