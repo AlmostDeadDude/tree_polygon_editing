@@ -1,15 +1,37 @@
 <?php
-$firstTime = $_GET['firstTime'];
-$Campaign_id = $_GET["campaign"];
-$Worker_id = $_GET["worker"];
-$Rand_key = $_GET["rand_key"];
+session_start();
+$firstTime = $_GET['firstTime'] ?? 'false';
+$Campaign_id = $_GET["campaign"] ?? "DEMO_CAMPAIGN";
+$Worker_id = $_GET["worker"] ?? ("VISITOR_" . substr(hash('crc32b', session_id()), 0, 6));
+$Rand_key = $_GET["rand_key"] ?? bin2hex(random_bytes(4));
 
 @require_once('header.php');
 echo '
-<h2>Introduction</h2>
-<p>Welcome to our tree outline optimization task! You will be presented with a series of pictures that contain a tree and a polygon. Your job is to modify and improve polygons on the canvas. Your effort will help us to improve the accuracy of our automatic tree selection algorithms in the future.</p>
+<section class="info-block">
+  <h1>About the Tree Polygon Editing Project</h1>
+  <p>This tool started as part of a research series on tree crown delineation. Hundreds of crowd workers refined automatically or manually generated polygons, while the backend tracked every action to improve our models.</p>
+  <div class="info-grid">
+    <article class="info-card">
+      <h3>Research goal</h3>
+      <p>Collect high-quality human adjustments to train and validate new tree extraction workflows for forestry, agriculture, and urban planning.</p>
+    </article>
+    <article class="info-card">
+      <h3>Task design</h3>
+      <p>A lightweight HTML5 canvas app let workers move, add, or delete polygon vertices directly on drone imagery.</p>
+    </article>
+    <article class="info-card">
+      <h3>Demo mode</h3>
+      <p>The live demo keeps the full UX but does not write new files. Instead, it points to a curated set of historic results.</p>
+    </article>
+  </div>
+  <div class="demo-actions">
+    <a class="action primary" href="index.php">Try the editor</a>
+    <a class="action secondary" target="_blank" rel="noopener noreferrer" href="userLogsView.php">Replay past submissions</a>
+  </div>
+</section>
+<section class="info-block">
 <h2>Task Instructions</h2>
-<p>To complete the task please improve the polygon to match the underlying tree, submit your results and you will receive a unique VCODE to claim your payment. </p>
+<p>To complete the task please improve the polygon to match the underlying tree, submit your results and you will receive a unique proof code to claim your payment.</p>
 <h2>How to Use:</h2>
   <ul>
     <li><strong>Move Points:</strong> Hover over a point to highlight it (lightblue color). Click and drag the active point (yellow color) to move it to a new position. When you release the mouse, the point will stay at the last position.
@@ -28,8 +50,10 @@ echo '
 
 <h2>Conclusion</h2>
 <p>Thank you for helping with our research! Your contributions will help us to improve our automatic tree selection algorithms, which will have a wide range of applications in fields such as agriculture, forestry, and urban planning. We appreciate your time and effort, and wish you good luck with the task.</p>
+</section>
 ';
-if ($firstTime == 'true') {
+// if ($firstTime == 'true') {
+if (true) {
   echo '<button class="toTaskBtn" onclick="startTask()">Start task</button>';
   echo '<script>
     function startTask() {

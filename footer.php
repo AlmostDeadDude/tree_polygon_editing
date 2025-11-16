@@ -10,7 +10,11 @@ echo '
             </p>
         </div>
         <div class="footer-bottom">
-            <p>&copy <span id="year">2024</span></p>
+            <small>
+                © <span id="year">2023</span>, Ivan Shiller <a href="https://github.com/AlmostDeadDude/CountIt2-Interface" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-brands fa-github"></i>
+                </a> 
+            </small> 
         </div>
     </footer>
 <script src="js/script.js"></script>

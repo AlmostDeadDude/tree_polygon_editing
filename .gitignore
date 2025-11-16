@@ -1,10 +1,5 @@
-/results
-/user_info
-/user_logs
-/pics/misc
-/pics/[0-9]*.png
+*.xd
 results.json
 /original_data
-/jobs/*
-!jobs/job_1.txt
-/references
+*.docx
+/.vscode

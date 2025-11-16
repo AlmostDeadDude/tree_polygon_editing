@@ -1,71 +1,35 @@
 <?php
 //session to check whether the qualification page was opened
 session_start();
-
 if (!isset($_SESSION['qualification'])) {
-  //if not, redirect to the qualification page
-  header("Location: about.php?firstTime=true");
-  exit();
+  //keep the demo self-contained by assuming the visitor can continue
+  $_SESSION['qualification'] = true;
 }
 
-//get the microworkers usual staff
-$Campaign_id = $_GET["campaign"];
-$Worker_id = $_GET["worker"];
-$Rand_key = $_GET["rand_key"];
+//get the original crowdsourcing platform params or fall back to demo placeholders
+$Campaign_id = $_GET["campaign"] ?? "DEMO_CAMPAIGN";
+$Worker_id = $_GET["worker"] ?? ("VISITOR_" . substr(hash('crc32b', session_id()), 0, 6));
+$Rand_key = $_GET["rand_key"] ?? bin2hex(random_bytes(4));
 $My_secret_key = "2a0f6d1b74e582f9ee21c8e899bb014163431b1491255737db06bb587703cfcf";
 // string we will hash to produce VCODE
 $String_final = $Campaign_id . $Worker_id . $Rand_key . $My_secret_key;
 $vcode_for_proof = "mw-" . hash("sha256", $String_final);
 
-//job assignment algorithm
-//first count how many files are in the jobs folder
-$total_numb_jobs = count(glob('jobs/*'));
-//set up the desired number of iterations
-$total_numb_it = 5;
-//default values = error codes for later
-$next_job = 10000;
-$next_it = 10000;
-//check the files in the results folder and assign the next available job
-for ($it = 1; $it <= $total_numb_it; $it++) {                       //for each iteration
-  for ($in = 1; $in <= $total_numb_jobs; $in++) {                   //for each job
-    $file_to_check1 = "results/job_" . $in . '_' . $it . ".txt";    //folder to check for results
-    $existing = file_exists($file_to_check1);                       //check if file exists
-    if ($existing) {                                                //if it does exist
-      $no_of_lines = count(file($file_to_check1));                  //count the number of lines - basically check if empty
-      $last_mod = filemtime($file_to_check1);                       //get the last modification time
-      $cur_time = time();                                           //get the current time
-      $time_since_last_mod = ($cur_time - $last_mod) / 60;          //calculate the time since last modification in minutes
-      if ($no_of_lines < 1 and $time_since_last_mod > 20) {         //if the file is empty and it has been more than 20 minutes since last modification
-        $next_job = $in;                                            //accept the job number
-        $next_it = $it;                                             //and the iteration number
-        unlink($file_to_check1);                                    //delete existing empty file
-        break 2;                                                    //break out of the loops
-      }
-    } else {                                                        //if the file does not exist
-      $next_job = $in;                                              //accept the job number
-      $next_it = $it;                                               //and the iteration number
-      break 2;                                                      //break out of the loops
-    }
-  }
-}
-//after job assignment we either end up with a legit job number and iteration number or with error codes
-//in any cas ewe create the appropriate file in results (and user_info) folders
-file_put_contents("results/job_" . $next_job . "_" . $next_it . ".txt", "");
-file_put_contents("user_info/job_" . $next_job . "_" . $next_it . ".txt", "");
-
-//if after the job assignment we have error codes we return an error message
-if ($next_job == 10000 and $next_it == 10000) {
+//pick a random job file (no filesystem locking in demo mode)
+$job_files = glob('jobs/job_*.txt');
+if (!$job_files) {
   @require_once('header.php');
-  echo "<h1>⚠️</h1>
-  <h1>Sorry, there are no more jobs available at the moment.</h1>
-  <h2>Please try again later.</h2>
-  ";
+  echo "<section class='info-block'><h1>Demo data missing</h1><p>The jobs folder is empty, so the editor cannot load any examples at the moment.</p></section>";
   @require_once('footer.php');
   exit();
 }
-
-//if job was assigned we read the appropriate job TXT file line by line
-$json_filename = 'jobs/job_' . $next_job . '.txt';
+$json_filename = $job_files[array_rand($job_files)];
+if (preg_match('/job_(\d+)/', basename($json_filename), $matches)) {
+  $next_job = $matches[1];
+} else {
+  $next_job = basename($json_filename);
+}
+$next_it = 'demo';
 
 $handle = fopen($json_filename, "r");
 $data = array();
@@ -99,6 +63,30 @@ $bg_image_width = $bg_image_info[0];
 $bg_image_height = $bg_image_info[1];
 
 require_once('header.php');
+
+echo '<section class="info-block demo-callout">
+<p class="demo-badge">Demo dataset: <strong>Job ' . htmlspecialchars($next_job) . '</strong></p>
+<h1>Tree Polygon Editing – Research Demo</h1>
+<p>This demo build keeps the full editing experience while running in a read-only mode. When deployed for large crowdsourcing campaigns, a backend service handled worker routing, reserved files, and wrote the annotations you sent back. For demo purposes every visitor simply gets a random job and no data ever leaves this page.</p>
+<div class="info-grid">
+  <article class="info-card">
+    <h3>Original workflow</h3>
+    <p>The task distributed thousands of trees to crowd workers, captured their edit logs, and replayed them in an internal dashboard.</p>
+  </article>
+  <article class="info-card">
+    <h3>Demo behaviour</h3>
+    <p>Jobs are picked at random, edits stay in the browser, and you can replay historic submissions via the public viewer.</p>
+  </article>
+  <article class="info-card">
+    <h3>Explore more</h3>
+    <p>Head over to the sample result viewer to inspect action logs that the production system collected during real campaigns.</p>
+  </article>
+</div>
+<div class="demo-actions">
+  <a class="action primary" href="#controls_container">Jump to the editor</a>
+  <a class="action secondary" target="_blank" rel="noopener noreferrer" href="userLogsView.php">View sample results</a>
+</div>
+</section>';
 
 echo '<div id="controls_container">
 <h2 id="controls_title">Controls info <i class="fas fa-chevron-down"></i></h2>
@@ -204,7 +192,7 @@ const userInfo = {
 };
 const dataInfo = {
   file: "' . $json_filename . '",
-  image: "' . join('&', $bg_image_filenames) . '",
+  image: "' . implode('&', $bg_image_filenames) . '",
   job: "' . $next_job . '",
   iteration: "' . $next_it . '",
 };

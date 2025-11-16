@@ -104,8 +104,7 @@ if (page === "index.php" || page === "" || page === 'qualification.php' || page 
             });
         });
 
-        //when confirmed the values are sent to the server = saveResults.php
-        //if it returns the success message, the user is redirected to the results page = results.php
+        //when confirmed we only store a short summary locally (demo mode = no backend writes)
         if (confirmBtn) {
             confirmBtn.addEventListener("click", async () => {
                 //first collect the date from all the inputs and store it in the values object
@@ -113,25 +112,25 @@ if (page === "index.php" || page === "" || page === 'qualification.php' || page 
                 tasks.forEach(task => {
                     console.log(task);
                 });
-                //send data as json 
-                let data = JSON.stringify({
-                    userInfo: userInfo,
+                confirmBtn.disabled = true;
+                confirmBtn.innerText = "Preparing demo recap...";
+                const recap = {
+                    polygonsEdited: Object.keys(values).length,
+                    timestamp: new Date().toISOString(),
                     dataInfo: dataInfo,
-                    values: values,
-                    userLog: userActions
+                    userInfo: userInfo
+                };
+                sessionStorage.setItem("polygonDemoSubmission", JSON.stringify(recap));
+                swal({
+                    title: "Demo mode enabled",
+                    text: "Your edits stay in the browser. Redirecting to the summary screen…",
+                    icon: "info",
+                    buttons: false,
+                    timer: 2500
                 });
-                let response = await fetch("saveResults.php", {
-                    method: "POST",
-                    body: data,
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-                let result = await response.text();
-                console.log(result);
-                if (result == "success") {
-                    window.location.href = "results.php?vcode=" + userInfo.vcode;
-                }
+                setTimeout(() => {
+                    window.location.href = "results.php?vcode=" + userInfo.vcode + "&demo=1";
+                }, 800);
             });
         }
     } else { //qualification.php
@@ -624,11 +623,11 @@ if (page === "index.php" || page === "" || page === 'qualification.php' || page 
         }
     }
 } else if (page === "results.php") {
-    //the results page onle needs a simple button to copy the vcode to the clipboard
-    const copyBtn = document.getElementById("copyVcodeBtn");
-    const vcodeEl = document.getElementById("vcodeContainer");
+    //the results page only needs a simple button to copy the proof code to the clipboard
+    const copyBtn = document.getElementById("copyProofCodeBtn");
+    const proofCodeEl = document.getElementById("proofCodeContainer");
     copyBtn.addEventListener("click", () => {
-        navigator.clipboard.writeText(vcodeEl.innerText.trim());
+        navigator.clipboard.writeText(proofCodeEl.innerText.trim());
         copyBtn.innerText = "Copied!";
     });
 } else {

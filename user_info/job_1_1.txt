@@ -1,0 +1,1 @@
+{"file":"jobs\/job_1.txt","image":"pics\/100.png&pics\/101.png&pics\/102.png&pics\/103.png&pics\/104.png","job":"1","iteration":"1","campaign":"","worker":"","random":"","vcode":"mw-e7a987953151e6356788c72d0c8ab8d45abf0d4bd4a8709d02fffc0f99b4fa48"}

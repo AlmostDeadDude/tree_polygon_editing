@@ -17,6 +17,21 @@ if ($reference){
 $job_data = json_decode($job_data);
 $log_data = json_decode($log_data);
 
+$total_polygons = count($job_data);
+$total_actions = 0;
+$total_duration = 0;
+foreach ($log_data as $entry) {
+    $actions = isset($entry->log) ? count($entry->log) : 0;
+    $total_actions += $actions;
+    if ($actions > 1) {
+        $start = $entry->log[0]->timestamp;
+        $end = $entry->log[$actions - 1]->timestamp;
+        $total_duration += ($end - $start);
+    }
+}
+$average_actions = $total_polygons > 0 ? round($total_actions / $total_polygons) : 0;
+$average_duration = $total_polygons > 0 ? round(($total_duration / $total_polygons) / 1000, 1) : 0;
+
 // Calculate canvas size based on background image
 $bg_image_filenames = array();
 foreach ($job_data as $json_obj) {
@@ -28,6 +43,20 @@ $bg_image_width = $bg_image_info[0];
 $bg_image_height = $bg_image_info[1];
 
 require_once('header.php');
+echo '<section class="info-block log-callout">
+<h1>Replay: Job ' . htmlspecialchars($job) . '</h1>
+<p>This dashboard replays a single contributor\'s session from our crowdsourcing platform. Follow each action below to understand how the polygon evolved over time.</p>
+<div class="log-meta">
+  <span>Polygons recorded: ' . $total_polygons . '</span>
+  <span>Total actions: ' . $total_actions . '</span>
+  <span>Avg. actions per polygon: ' . $average_actions . '</span>
+  <span>Avg. duration: ' . $average_duration . 's</span>
+</div>
+<div class="demo-actions">
+  <a class="action secondary" href="userLogsView.php">Back to log library</a>
+  <a class="action primary" href="index.php">Try the editor</a>
+</div>
+</section>';
 echo '<div id="controls_container" style="display:none;">
 <h2 id="controls_title">Controls info <i class="fas fa-chevron-down"></i></h2>
 <div id="controls_wrapper" class="hidden" data-collapsed = "true">
